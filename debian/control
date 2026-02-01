@@ -1,0 +1,43 @@
+Source: noctalia-shell
+Section: x11
+Priority: optional
+Maintainer: Noctalia Developers <noctalia@example.com>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://github.com/noctalia-dev/noctalia-shell
+Vcs-Browser: https://github.com/noctalia-dev/noctalia-shell
+Vcs-Git: https://github.com/noctalia-dev/noctalia-shell.git
+Rules-Requires-Root: no
+
+Package: noctalia-shell
+Architecture: all
+Depends: ${misc:Depends},
+         brightnessctl,
+         curl,
+         git,
+         wl-clipboard,
+         imagemagick,
+         python3,
+         fontconfig,
+         network-manager
+Recommends: cava,
+            cliphist,
+            ddcutil,
+            wlsunset,
+            python3-gi
+Suggests: evolution-data-server,
+          libsoup-3.0-0
+Description: Sleek and minimal desktop shell for Wayland
+ Noctalia Shell is a beautiful, minimalist desktop shell thoughtfully
+ crafted for Wayland, built with the Quickshell framework.
+ .
+ Features include:
+  - Support for multiple Wayland compositors (Hyprland, Sway, Niri, labwc)
+  - Customizable panels, dock, and desktop widgets
+  - Media controls and audio visualization
+  - Theming with multiple color schemes
+  - Multi-monitor support
+ .
+ Note: This package requires Quickshell to be installed separately.
+ Quickshell is not available in Debian repositories and must be built
+ from source: https://github.com/quickshell-mirror/quickshell

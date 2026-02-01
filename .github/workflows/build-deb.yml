@@ -1,0 +1,83 @@
+name: Build Debian Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-deb:
+    name: Build .deb package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            debhelper \
+            devscripts \
+            rsync \
+            fakeroot
+
+      - name: Determine version
+        id: vars
+        run: |
+          TAG_NAME="${GITHUB_REF_NAME}"
+          PKGVER="${TAG_NAME#v}"
+          echo "pkgver=$PKGVER" >> "$GITHUB_OUTPUT"
+
+      - name: Update changelog version
+        env:
+          PKGVER: ${{ steps.vars.outputs.pkgver }}
+        run: |
+          # Update the version in debian/changelog
+          sed -i "1s/([^)]*)/($PKGVER-1)/" debian/changelog
+          # Update the date
+          DATE=$(date -R)
+          sed -i "s/>.*/> $DATE/" debian/changelog
+
+      - name: Build Debian package
+        run: |
+          dpkg-buildpackage -us -uc -b
+
+      - name: Move package to workspace
+        run: |
+          mv ../noctalia-shell_*.deb ./
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: noctalia-shell_*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summarize build
+        env:
+          PKGVER: ${{ steps.vars.outputs.pkgver }}
+        run: |
+          DEB_FILE=$(ls noctalia-shell_*.deb)
+          {
+            echo "## Debian Package Build"
+            echo ""
+            echo "- Package: noctalia-shell"
+            echo "- Version: ${PKGVER}"
+            echo "- File: ${DEB_FILE}"
+            echo ""
+            echo "### Installation"
+            echo "\`\`\`bash"
+            echo "sudo dpkg -i ${DEB_FILE}"
+            echo "sudo apt-get install -f  # Install dependencies"
+            echo "\`\`\`"
+            echo ""
+            echo "**Note:** Quickshell must be installed separately."
+          } >> "$GITHUB_STEP_SUMMARY"

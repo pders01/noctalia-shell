@@ -1,0 +1,18 @@
+#!/bin/bash
+# Wrapper script for noctalia-shell
+# Requires Quickshell (qs) to be installed
+
+SHELL_PATH="/usr/share/noctalia-shell"
+
+# Check if quickshell is available
+if ! command -v qs &> /dev/null; then
+    echo "Error: Quickshell (qs) is not installed." >&2
+    echo "" >&2
+    echo "To install Quickshell, run:" >&2
+    echo "  sudo /usr/share/noctalia-shell/Scripts/debian/install-quickshell.sh" >&2
+    echo "" >&2
+    echo "Or build manually from: https://github.com/quickshell-mirror/quickshell" >&2
+    exit 1
+fi
+
+exec qs -p "$SHELL_PATH" "$@"

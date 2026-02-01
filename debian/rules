@@ -1,0 +1,36 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE = 1
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	install -d $(CURDIR)/debian/noctalia-shell/usr/share/noctalia-shell
+	install -d $(CURDIR)/debian/noctalia-shell/usr/bin
+
+	# Copy shell files (excluding dev/packaging files)
+	rsync -av --exclude='.git' \
+		--exclude='.github' \
+		--exclude='/debian' \
+		--exclude='nix' \
+		--exclude='flake.nix' \
+		--exclude='flake.lock' \
+		--exclude='shell.nix' \
+		--exclude='result*' \
+		--exclude='lefthook.yml' \
+		--exclude='CLAUDE.md' \
+		--exclude='Assets/Screenshots' \
+		--exclude='Scripts/dev' \
+		--exclude='aqtinstall.log' \
+		./ $(CURDIR)/debian/noctalia-shell/usr/share/noctalia-shell/
+
+	# Install wrapper script
+	install -m 755 debian/noctalia-shell.wrapper \
+		$(CURDIR)/debian/noctalia-shell/usr/bin/noctalia-shell
+
+override_dh_auto_build:
+	# Nothing to build - QML application
+
+override_dh_auto_test:
+	# No tests to run
